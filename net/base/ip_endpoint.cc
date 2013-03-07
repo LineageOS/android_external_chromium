@@ -107,15 +107,13 @@ bool IPEndPoint::FromSockAddr(const struct sockaddr* address,
 }
 
 std::string IPEndPoint::ToString() const {
-  union {
-    struct sockaddr_storage addr_storage;
-    struct sockaddr addr;
-  };
+  struct sockaddr_storage addr_storage;
   size_t addr_len = sizeof(addr_storage);
-  if (!ToSockAddr(&addr, &addr_len)) {
+  struct sockaddr* addr = reinterpret_cast<struct sockaddr*>(&addr_storage);
+  if (!ToSockAddr(addr, &addr_len)) {
     return "";
   }
-  return NetAddressToStringWithPort(&addr, addr_len);
+  return NetAddressToStringWithPort(addr, addr_len);
 }
 
 bool IPEndPoint::operator<(const IPEndPoint& that) const {

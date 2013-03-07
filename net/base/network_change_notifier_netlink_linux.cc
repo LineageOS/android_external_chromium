@@ -71,16 +71,13 @@ int InitializeNetlinkSocket() {
     return -1;
   }
 
-  union {
-    struct sockaddr_nl local_addr;
-    struct sockaddr local_addr_generic;
-  };
+  struct sockaddr_nl local_addr;
   memset(&local_addr, 0, sizeof(local_addr));
   local_addr.nl_family = AF_NETLINK;
   local_addr.nl_pid = getpid();
   local_addr.nl_groups = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR |
                          RTMGRP_NOTIFY;
-  int ret = bind(sock, &local_addr_generic,
+  int ret = bind(sock, reinterpret_cast<struct sockaddr*>(&local_addr),
                  sizeof(local_addr));
   if (ret < 0) {
     PLOG(ERROR) << "Error binding netlink socket";
